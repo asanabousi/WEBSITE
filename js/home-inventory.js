@@ -4,11 +4,7 @@
    and renders them into the #inv-cards container.
    ================================================ */
 
-const HOME_INV_CONFIG = {
-  baseId: 'appdRYnYsp57lvv6T',
-  table: 'Inventory',
-  maxCards: 3
-};
+   const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
 
 (function () {
   const grid = document.getElementById('invCards');
@@ -90,49 +86,47 @@ const HOME_INV_CONFIG = {
   </a>
 </article>`;
   }
-
   async function fetchFeatured() {
-    const { baseId, token, table, maxCards } = HOME_INV_CONFIG;
-    const filter = encodeURIComponent(`AND({Status}="In Stock",{Featured on Home}=1)`);
-    const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(table)}?filterByFormula=${filter}&maxRecords=${maxCards}&sort[0][field]=Date%20Added&sort[0][direction]=desc`;
-
-    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
-    if (!res.ok) throw new Error(`Airtable error ${res.status}`);
-    const data = await res.json();
-
-    // If no featured records, fall back to any In Stock
-    if (!data.records || data.records.length === 0) {
-      const fallback = encodeURIComponent(`{Status}="In Stock"`);
-      const url2 = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(table)}?filterByFormula=${fallback}&maxRecords=${maxCards}&sort[0][field]=Date%20Added&sort[0][direction]=desc`;
-      const res2 = await fetch(url2, { headers: { 'Authorization': `Bearer ${token}` } });
-      if (!res2.ok) throw new Error(`Airtable error ${res2.status}`);
-      return (await res2.json()).records || [];
+    const res = await fetch(`${API_BASE}/inventory?featuredOnly=true&limit=6`);
+  
+    if (!res.ok) {
+      throw new Error(`Inventory API error ${res.status}`);
     }
-    return data.records;
+  
+    const data = await res.json();
+    const records = data.records || [];
+  
+    return records.map((bike) => ({
+      id: bike.id,
+      fields: {
+        'Stock Number': bike.stockNumber,
+        'Year': bike.year,
+        'Make': bike.make,
+        'Model': bike.model,
+        'Category': bike.category,
+        'Mileage (km)': bike.mileage,
+        'Engine (cc)': bike.engine,
+        'Horsepower': bike.horsepower,
+        'Transmission': bike.transmission,
+        'Color': bike.color,
+        'Price (CAD)': bike.price,
+        'Badge': bike.badge,
+        'Description': bike.description,
+        'Photos': bike.photo ? [{ url: bike.photo, thumbnails: { large: { url: bike.photo } } }] : [],
+        'Status': bike.status
+      }
+    }));
   }
-
   async function load() {
     grid.innerHTML = `<div class="loading-state"><div class="loading-spinner"></div><span>Loading inventory…</span></div>`;
 
     try {
       const records = await fetchFeatured();
 
-      // Update total count display (separate call for all in-stock)
-      if (countEl || document.getElementById('heroStockCount')) {
-        const { baseId, token, table } = HOME_INV_CONFIG;
-        const cf = encodeURIComponent(`{Status}="In Stock"`);
-        fetch(`https://api.airtable.com/v0/${baseId}/${encodeURIComponent(table)}?filterByFormula=${cf}&fields[]=Stock%20Number`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }).then(r => r.json()).then(d => {
-          if (d.records) {
-            const totalInStock = d.records.length;
-            if (countEl) countEl.textContent = `Showing ${records.length} of ${totalInStock} units`;
-            const heroCount = document.getElementById('heroStockCount');
-            if (heroCount) heroCount.textContent = totalInStock;
-          }
-        }).catch(() => {});
-      }
+      if (countEl) countEl.textContent = `Showing ${records.length} featured units`;
 
+      const heroCount = document.getElementById('heroStockCount');
+      if (heroCount) heroCount.textContent = records.length;
       if (!records.length) {
         grid.innerHTML = `<div class="loading-state">No inventory available right now. Check back soon.</div>`;
         return;

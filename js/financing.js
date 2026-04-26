@@ -139,29 +139,9 @@
       headers: { Accept: 'application/json' }
     });
 
-    const airtablePromise = fetch(
-      `https://api.airtable.com/v0/${AIRTABLE_BASE}/${encodeURIComponent(LEADS_TABLE)}`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${AIRTABLE_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(buildAirtablePayload(fd))
-      }
-    );
-
-    const [formspreeResult, airtableResult] = await Promise.allSettled([
-      formspreePromise,
-      airtablePromise
+    const [formspreeResult] = await Promise.allSettled([
+      formspreePromise
     ]);
-
-    // Airtable — non-blocking, log only
-    if (airtableResult.status === 'rejected') {
-      console.warn('Airtable lead write failed:', airtableResult.reason);
-    } else if (!airtableResult.value.ok) {
-      airtableResult.value.json().then(d => console.warn('Airtable error:', d)).catch(() => {});
-    }
 
     // Formspree — controls UX outcome
     let formspreeOk = false;

@@ -437,24 +437,38 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
     });
   }
 
-  // ---- Fetch all records (paginated) ----
-  async function fetchAll() {
-    const { baseId, token, table } = INV_CONFIG;
-    let records = [];
-    let offset = null;
-    const sort = 'sort[0][field]=Date%20Added&sort[0][direction]=desc';
+// ---- Fetch all records from Worker ----
+async function fetchAll() {
+  const res = await fetch(`${API_BASE}/inventory?featuredOnly=false&limit=100`);
 
-    do {
-      const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(table)}?${sort}${offset ? '&offset=' + offset : ''}`;
-      const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
-      if (!res.ok) throw new Error(`Airtable ${res.status}`);
-      const data = await res.json();
-      records = records.concat(data.records || []);
-      offset = data.offset || null;
-    } while (offset);
-
-    return records;
+  if (!res.ok) {
+    throw new Error(`Inventory API ${res.status}`);
   }
+
+  const data = await res.json();
+  const records = data.records || [];
+
+  return records.map((bike) => ({
+    id: bike.id,
+    fields: {
+      'Stock Number': bike.stockNumber,
+      'Year': bike.year,
+      'Make': bike.make,
+      'Model': bike.model,
+      'Category': bike.category,
+      'Mileage (km)': bike.mileage,
+      'Engine (cc)': bike.engine,
+      'Horsepower': bike.horsepower,
+      'Transmission': bike.transmission,
+      'Color': bike.color,
+      'Price (CAD)': bike.price,
+      'Badge': bike.badge,
+      'Description': bike.description,
+      'Photos': bike.photo ? [{ url: bike.photo, thumbnails: { large: { url: bike.photo } } }] : [],
+      'Status': bike.status
+    }
+  }));
+}
 
   async function load() {
     grid.innerHTML = `<div class="loading-state"><div class="loading-spinner"></div><span>Loading inventory…</span></div>`;

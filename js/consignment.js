@@ -4,10 +4,9 @@
    + writes a lead row to Airtable Leads table.
    ================================================ */
 
-(function () {
-  const AIRTABLE_BASE = 'appdRYnYsp57lvv6T';
-  const LEADS_TABLE = 'Leads';
+   const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
 
+   (function () {
   const form = document.getElementById('conForm');
   if (!form) return;
 
@@ -159,30 +158,9 @@
       headers: { Accept: 'application/json' }
     });
 
-    // Airtable — JSON only, no photos (Airtable can't accept binary file uploads from the browser like this)
-    const airtablePromise = fetch(
-      `https://api.airtable.com/v0/${AIRTABLE_BASE}/${encodeURIComponent(LEADS_TABLE)}`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${AIRTABLE_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(buildAirtablePayload(fd))
-      }
-    );
-
-    const [formspreeResult, airtableResult] = await Promise.allSettled([
-      formspreePromise,
-      airtablePromise
+    const [formspreeResult] = await Promise.allSettled([
+      formspreePromise
     ]);
-
-    // Airtable — non-blocking, log only
-    if (airtableResult.status === 'rejected') {
-      console.warn('Airtable lead write failed:', airtableResult.reason);
-    } else if (!airtableResult.value.ok) {
-      airtableResult.value.json().then(d => console.warn('Airtable error:', d)).catch(() => {});
-    }
 
     // Formspree controls UX outcome
     let formspreeOk = false;
