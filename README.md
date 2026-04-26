@@ -64,10 +64,10 @@ The site references three images that need to exist:
 ### 2. Verify Airtable token scopes
 Token currently embedded in `js/home-inventory.js`, `js/inventory-page.js`, `js/vehicle-page.js`, and `js/financing.js`.
 
-Per your previous note the token was returning `403`. Go to [airtable.com/create/tokens](https://airtable.com/create/tokens) and confirm the read-only PAT (`REMOVED_AIRTABLE_TOKEN...`) has:
+
 - `data.records:read` on base `appdRYnYsp57lvv6T`, scoped to the `Inventory` table
 
-And the write PAT (`REMOVED_AIRTABLE_TOKEN...`) used in `financing.js` has:
+
 - `data.records:write` on the same base, scoped to the `Leads` table
 
 Field names must match exactly (case-sensitive). See the table schemas below.
