@@ -62,7 +62,7 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
     if (key.includes('rv') || key.includes('trailer')) return png('trailer_icon_only.png');
     if (key.includes('watercraft') || key.includes('jet') || key.includes('sea-doo') || key.includes('seadoo')) return png('watercraft-1_icon_only.png');
     if (key.includes('boat') || key.includes('water')) return png('boat_icon_only.png');
-    if (key.includes('snow')) return png('off-road_icon_only.png');
+    if (key.includes('snow')) return png('snowmobile_icon_only.png');
     if (key.includes('equipment')) return png('equipment_icon_only.png');
     if (key.includes('electric')) return png('electric_icon_only.png');
     return motorcycle;
