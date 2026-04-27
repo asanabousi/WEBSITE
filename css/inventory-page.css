@@ -186,10 +186,13 @@
   border: 1px solid var(--line-hi); border-radius: 50%;
 }
 .body-type-card .body-icon {
-  width: 46px; height: 32px; display: grid; place-items: center;
-  border: 1px solid var(--line-hi); border-radius: 999px;
-  font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
+  width: 58px; height: 38px; display: grid; place-items: center;
   color: var(--mute);
+}
+.body-type-card .body-icon svg {
+  width: 58px; height: 38px;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
 }
 .body-type-card .body-name {
   text-align: center; color: #ddd; font-size: 14px; line-height: 1.2;
@@ -202,7 +205,7 @@
   border-color: var(--accent); background: rgba(255,45,45,0.08);
 }
 .body-type-card:has(input:checked) .body-dot { background: var(--accent); border-color: var(--accent); }
-.body-type-card:has(input:checked) .body-icon { border-color: rgba(255,45,45,0.45); color: var(--ink); }
+.body-type-card:has(input:checked) .body-icon { color: var(--ink); }
 .sidebar-status { display: flex; flex-direction: column; gap: 8px; }
 .sidebar-status label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: #ccc; transition: color .2s; }
 .sidebar-status label:hover { color: var(--ink); }

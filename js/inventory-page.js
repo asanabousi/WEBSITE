@@ -42,16 +42,21 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
   }
   function bodyIcon(type) {
     const key = String(type || '').toLowerCase();
-    if (key.includes('sport')) return 'SP';
-    if (key.includes('cruiser')) return 'CR';
-    if (key.includes('touring')) return 'TR';
-    if (key.includes('atv') || key.includes('utv')) return 'ATV';
-    if (key.includes('trailer') || key.includes('rv')) return 'RV';
-    if (key.includes('boat') || key.includes('water')) return 'WT';
-    if (key.includes('snow')) return 'SN';
-    if (key.includes('equipment')) return 'EQ';
-    if (key.includes('electric')) return 'EV';
-    return 'UM';
+    const motorcycle = `<svg viewBox="0 0 72 42" aria-hidden="true"><circle cx="18" cy="30" r="8"/><circle cx="55" cy="30" r="8"/><path d="M22 29h13l8-12h9l8 12M35 29l-8-13h-8M31 16h11M49 17l7-7"/></svg>`;
+    const atv = `<svg viewBox="0 0 72 42" aria-hidden="true"><circle cx="17" cy="31" r="7"/><circle cx="55" cy="31" r="7"/><path d="M18 30h11l6-10h15l6 10M28 20h-8l-6 7M50 20l9-6M35 20l-3-8h12l-2 8"/></svg>`;
+    const trailer = `<svg viewBox="0 0 72 42" aria-hidden="true"><circle cx="50" cy="31" r="6"/><path d="M9 14h43v14H9zM52 25h9l5 4M17 14v14M30 14v14"/></svg>`;
+    const boat = `<svg viewBox="0 0 72 42" aria-hidden="true"><path d="M10 22h50l-8 10H20zM29 22V10h16l7 12M16 35c5-3 10 3 15 0s10 3 15 0 10 3 15 0"/></svg>`;
+    const snow = `<svg viewBox="0 0 72 42" aria-hidden="true"><path d="M10 31h46M17 26h30l10-8h7M25 26l8-12h15l8 12M17 31l-6 5M44 31l8 5M18 14l5 5M18 14h-6M18 14v-6"/></svg>`;
+    const equipment = `<svg viewBox="0 0 72 42" aria-hidden="true"><circle cx="19" cy="31" r="7"/><circle cx="42" cy="31" r="7"/><path d="M12 31h38l9-10h7M20 24h18V12H24zM38 17h13l8 9"/></svg>`;
+    const electric = `<svg viewBox="0 0 72 42" aria-hidden="true"><circle cx="19" cy="30" r="7"/><circle cx="53" cy="30" r="7"/><path d="M24 29h12l8-14h12l5 14M38 13l-7 11h9l-6 10"/></svg>`;
+    if (key.includes('sport') || key.includes('cruiser') || key.includes('touring') || key.includes('naked') || key.includes('adventure') || key.includes('off-road') || key.includes('three')) return motorcycle;
+    if (key.includes('atv') || key.includes('utv') || key.includes('golf')) return atv;
+    if (key.includes('trailer') || key.includes('rv')) return trailer;
+    if (key.includes('boat') || key.includes('water')) return boat;
+    if (key.includes('snow')) return snow;
+    if (key.includes('equipment')) return equipment;
+    if (key.includes('electric')) return electric;
+    return motorcycle;
   }
   function badgeClass(badge) {
     const map = { 'NEW': 'badge-new', 'Featured': 'badge-featured', 'Reduced': 'badge-reduced', 'Just Arrived': 'badge-featured' };
