@@ -27,7 +27,13 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
   let kmMax = null;
 
   // ---- Utilities ----
-  function fmt(n) { return n ? '$' + Math.ceil(Number(n) / 100).toLocaleString('en-CA') : 'Contact Us'; }
+  function fmt(n) {
+  const value = Number(n);
+  if (!Number.isFinite(value) || value <= 0) return 'Contact Us';
+
+  // Airtable sends full vehicle price. Website displays estimated monthly payment.
+  return '$' + Math.ceil(value / 100).toLocaleString('en-CA');
+}
   function fmtNum(n) { return n ? Number(n).toLocaleString('en-CA') : '—'; }
   function badgeClass(badge) {
     const map = { 'NEW': 'badge-new', 'Featured': 'badge-featured', 'Reduced': 'badge-reduced', 'Just Arrived': 'badge-featured' };
@@ -488,34 +494,38 @@ async function fetchAll() {
   load();
 })();
 
-/* ===== Inventory default collapsed filters patch ===== */
-(function () {
-  function ready(fn) {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", fn);
-    } else {
-      fn();
-    }
-  }
 
-  ready(function () {
-    var path = location.pathname.toLowerCase();
-    if (!path.includes("inventory")) return;
+/* ===== Inventory filter toggle ===== */
+document.addEventListener("DOMContentLoaded", function () {
+  const body = document.body;
 
-    document.body.classList.add("inventory-filters-collapsed");
+  const sidebar =
+    document.querySelector(".inv-sidebar") ||
+    document.querySelector(".inventory-sidebar") ||
+    document.querySelector(".filters-sidebar") ||
+    document.querySelector("aside");
 
-    var btn = document.createElement("button");
+  const toolbar = document.querySelector(".inv-toolbar") || document.body;
+
+  if (!sidebar) return;
+
+  sidebar.classList.add("filters-panel");
+  body.classList.add("inventory-filters-collapsed");
+
+  let btn = document.getElementById("filterToggle");
+  if (!btn) {
+    btn = document.createElement("button");
+    btn.id = "filterToggle";
     btn.type = "button";
-    btn.className = "inventory-filter-toggle";
+    btn.className = "filter-toggle-btn";
     btn.textContent = "Filters";
     btn.setAttribute("aria-expanded", "false");
+    toolbar.prepend(btn);
+  }
 
-    btn.addEventListener("click", function () {
-      var collapsed = document.body.classList.toggle("inventory-filters-collapsed");
-      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
-      btn.textContent = collapsed ? "Filters" : "Hide Filters";
-    });
-
-    document.body.appendChild(btn);
+  btn.addEventListener("click", function () {
+    const isCollapsed = body.classList.toggle("inventory-filters-collapsed");
+    btn.textContent = isCollapsed ? "Filters" : "Hide Filters";
+    btn.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
   });
-})();
+});

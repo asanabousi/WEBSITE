@@ -214,3 +214,37 @@
 @media (max-width: 600px) {
   .inv-results .inv-grid { grid-template-columns: 1fr; }
 }
+
+
+/* ===== Inventory collapsed filters patch ===== */
+.filter-toggle-btn {
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(18,18,18,.92);
+  color: #fff;
+  border-radius: 999px;
+  padding: 12px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+body.inventory-filters-collapsed .filters-panel {
+  display: none !important;
+}
+
+body.inventory-filters-collapsed .inv-grid-wrap,
+body.inventory-filters-collapsed .inventory-grid-wrap,
+body.inventory-filters-collapsed .inv-results,
+body.inventory-filters-collapsed main {
+  margin-left: 0 !important;
+}
+
+@media (max-width: 900px) {
+  .filter-toggle-btn {
+    padding: 10px 14px;
+    font-size: 9px;
+  }
+}
