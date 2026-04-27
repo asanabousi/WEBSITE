@@ -75,6 +75,9 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
     const map = { 'In Stock': 'in-stock', 'Reserved': 'reserved', 'Sold': 'sold', 'Pending': 'pending', 'Hold': 'reserved' };
     return map[status] || 'in-stock';
   }
+  function photoUrl(photo) {
+    return photo?.thumbnails?.large?.url || photo?.url || '';
+  }
 
   function placeholderSvg() {
     return `<svg class="placeholder-svg" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
@@ -101,13 +104,20 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
   function renderCard(rec) {
     const f = rec.fields || {};
     const stock = f['Stock Number'] || rec.id;
-    const thumb = f['Photos'] && f['Photos'][0] ? f['Photos'][0].thumbnails?.large?.url || f['Photos'][0].url : null;
     const badge = f['Badge'];
     const status = f['Status'] || 'In Stock';
     const cat = f['Category'] || '';
     const year = f['Year'] || '';
     const make = f['Make'] || '';
     const model = f['Model'] || '';
+    const photos = Array.isArray(f['Photos']) ? f['Photos'].filter(photoUrl) : [];
+    const thumb = photos[0] ? photoUrl(photos[0]) : null;
+    const media = photos.length > 1
+      ? `<div class="card-photo-strip" aria-label="${year} ${make} ${model} photos">
+          ${photos.map((photo, index) => `<img src="${photoUrl(photo)}" alt="${year} ${make} ${model}${index ? ` photo ${index + 1}` : ''}" loading="${index ? 'lazy' : 'eager'}">`).join('')}
+        </div>
+        <span class="card-photo-count">${photos.length} photos</span>`
+      : (thumb ? `<img src="${thumb}" alt="${year} ${make} ${model}" loading="lazy">` : `<img src="assets/coming-soon.png" alt="Photos coming soon" loading="lazy">`);
     const cc = f['Engine (cc)'];
     const hp = f['Horsepower'];
     const km = f['Mileage (km)'];
@@ -117,7 +127,7 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
     return `<article class="card ${isSold ? 'card-status-sold' : ''}" data-stock="${stock}">
   <a href="vehicle.html?stock=${encodeURIComponent(stock)}">
     <div class="card-media">
-    ${thumb ? `<img src="${thumb}" alt="${year} ${make} ${model}" loading="lazy">` : `<img src="assets/coming-soon.png" alt="Photos coming soon" loading="lazy">`}
+      ${media}
       ${badge ? `<span class="card-badge ${badgeClass(badge)}">${badge}</span>` : ''}
       <span class="status-pill ${statusClass(status)}">${status}</span>
     </div>

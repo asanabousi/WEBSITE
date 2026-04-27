@@ -93,18 +93,13 @@
     const vehicleInterest = fd.get('specificVehicle') || fd.get('preferredCategory') || '';
 
     return {
-      records: [{
-        fields: {
-          Name: name,
-          Phone: fd.get('phone') || '',
-          Email: fd.get('email') || '',
-          Type: 'Financing',
-          'Vehicle Interest': vehicleInterest,
-          Status: 'New',
-          Notes: buildAirtableNotes(fd),
-          'Submitted At': new Date().toISOString()
-        }
-      }]
+      name,
+      phone: fd.get('phone') || '',
+      email: fd.get('email') || '',
+      type: 'Financing',
+      vehicleInterest,
+      source: 'Financing form',
+      notes: buildAirtableNotes(fd)
     };
   }
 
@@ -138,10 +133,26 @@
       body: fd,
       headers: { Accept: 'application/json' }
     });
+    const airtablePromise = fetch(`${API_BASE}/lead`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(buildAirtablePayload(fd))
+    });
 
-    const [formspreeResult] = await Promise.allSettled([
-      formspreePromise
+    const [formspreeResult, airtableResult] = await Promise.allSettled([
+      formspreePromise,
+      airtablePromise
     ]);
+
+    if (
+      airtableResult.status === 'rejected' ||
+      !airtableResult.value?.ok
+    ) {
+      console.warn(
+        'Airtable lead failed:',
+        airtableResult.status === 'rejected' ? airtableResult.reason : airtableResult.value.status
+      );
+    }
 
     // Formspree — controls UX outcome
     let formspreeOk = false;
