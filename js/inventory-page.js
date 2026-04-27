@@ -42,20 +42,35 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
   }
   function bodyIcon(type) {
     const key = String(type || '').toLowerCase();
-    const sportbike = `<svg viewBox="0 0 96 54" aria-hidden="true"><circle cx="22" cy="39" r="9"/><circle cx="73" cy="39" r="9"/><circle cx="22" cy="39" r="4"/><circle cx="73" cy="39" r="4"/><path d="M30 37h17l10-15h13l10 17M42 37l-12-18H18M36 20h20l7 6M63 22l10-12h10M52 20l-7-8h-12M16 29l-7 4M78 27l8-2"/></svg>`;
-    const cruiser = `<svg viewBox="0 0 96 54" aria-hidden="true"><circle cx="22" cy="39" r="10"/><circle cx="74" cy="39" r="10"/><path d="M31 38h25l9-10h11M36 29h22l-6 9M42 29l-8-11M34 18h20M63 28l7-15M70 13h12M18 29l-8 7M22 39h52"/></svg>`;
-    const adventure = `<svg viewBox="0 0 96 54" aria-hidden="true"><circle cx="22" cy="39" r="9"/><circle cx="74" cy="39" r="9"/><path d="M31 38h20l10-17h13l10 17M42 38l-9-20h-12M36 20h18l8 7M62 21l8-10h10M17 29h-7M48 24l-4 9M9 45h78"/></svg>`;
-    const atv = `<svg viewBox="0 0 96 54" aria-hidden="true"><circle cx="23" cy="40" r="9"/><circle cx="74" cy="40" r="9"/><circle cx="23" cy="40" r="4"/><circle cx="74" cy="40" r="4"/><path d="M23 39h18l8-14h21l8 14M38 25h-15l-10 10M70 25l12-9h7M49 25l-4-12h18l-4 12M42 33h21M14 25l-5-5M84 19l5-6"/></svg>`;
-    const trailer = `<svg viewBox="0 0 96 54" aria-hidden="true"><circle cx="69" cy="40" r="7"/><circle cx="69" cy="40" r="3"/><path d="M11 16h58v21H11zM69 31h12l8 7M21 16v21M38 16v21M55 16v21M12 13h18M12 40h46"/></svg>`;
-    const boat = `<svg viewBox="0 0 96 54" aria-hidden="true"><path d="M10 29h71l-12 13H25zM27 29V14h24l11 15M36 14v15M55 22h17M17 45c7-4 13 4 20 0s13 4 20 0 13 4 20 0"/></svg>`;
-    const snow = `<svg viewBox="0 0 96 54" aria-hidden="true"><path d="M11 39h64M24 32h35l14-10h11M34 32l11-17h19l10 17M26 39l-10 7M60 39l12 7M18 23l7 6M18 23h-9M18 23v-9M41 18h25M75 22l10-6"/></svg>`;
-    const equipment = `<svg viewBox="0 0 96 54" aria-hidden="true"><circle cx="25" cy="40" r="8"/><circle cx="55" cy="40" r="8"/><path d="M15 40h50l12-14h10M26 31h25V15H31zM51 22h17l10 11M32 15l-7 16M38 22h8M83 26l5 12h-16"/></svg>`;
-    const electric = `<svg viewBox="0 0 96 54" aria-hidden="true"><circle cx="24" cy="39" r="9"/><circle cx="72" cy="39" r="9"/><path d="M33 38h18l10-18h16l8 18M51 17l-10 16h12l-9 15M38 29h11M62 20l7-10h10M18 28l-8 6"/></svg>`;
-    if (key.includes('sport') || key.includes('naked') || key.includes('three')) return sportbike;
+    function logo(code, mark) {
+      return `<svg class="category-logo" viewBox="0 0 96 60" aria-hidden="true">
+        <rect class="badge-bg" x="6" y="5" width="84" height="50" rx="14"/>
+        <path class="badge-ring" d="M18 45V21l30-10 30 10v24L48 53z"/>
+        ${mark}
+        <text x="48" y="48" text-anchor="middle">${code}</text>
+      </svg>`;
+    }
+    const sportbike = logo('SPORT', `<path class="badge-line" d="M29 31c6-12 18-17 34-15M34 34h21l11-15M26 36h42M67 19l9-6M24 23h12M20 29h11"/><path class="badge-accent" d="M62 25l12 2-14 9z"/>`);
+    const naked = logo('STREET', `<path class="badge-line" d="M24 35h48M35 34l10-15h18l9 15M39 24h25M62 19l9-6h7M24 35l-7 6M72 35l7 6"/><path class="badge-accent" d="M41 22h18l-5 8H36z"/>`);
+    const cruiser = logo('CRUISER', `<path class="badge-line" d="M31 18l17 18 17-18M38 18l10 11 10-11M31 36h34M36 25h-9M69 25h-9"/><path class="badge-accent" d="M45 15h6v21h-6z"/>`);
+    const adventure = logo('ADV', `<path class="badge-line" d="M20 36l15-20 11 14 8-10 22 16M30 36h38M48 14v24M42 22l6-8 6 8"/><path class="badge-accent" d="M48 28l5 8H43z"/>`);
+    const atv = logo('ATV', `<circle class="badge-line" cx="28" cy="34" r="6"/><circle class="badge-line" cx="68" cy="34" r="6"/><path class="badge-line" d="M28 34h12l8-15 8 15h12M37 25h22M43 19h10M20 28h12M64 28h12"/><path class="badge-accent" d="M44 25h8l-4 8z"/>`);
+    const golf = logo('GOLF', `<path class="badge-line" d="M23 35h43l8-11M30 35V22h27l9 13M38 22v13M73 18v22M73 18h10l-3 5h-7"/><circle class="badge-line" cx="30" cy="38" r="4"/><circle class="badge-line" cx="62" cy="38" r="4"/><path class="badge-accent" d="M47 18h10l9 17H47z"/>`);
+    const trailer = logo('TRAILER', `<path class="badge-line" d="M22 20h39v18H22zM61 32h11l7 6M31 20v18M45 20v18M64 38h8"/><circle class="badge-line" cx="57" cy="39" r="5"/><path class="badge-accent" d="M76 36l7 2-7 2z"/>`);
+    const rv = logo('RV', `<path class="badge-line" d="M20 19h48v20H20zM68 28h8l6 11H68M30 19v20M44 19v20M22 41h56"/><circle class="badge-line" cx="32" cy="40" r="4"/><circle class="badge-line" cx="65" cy="40" r="4"/><path class="badge-accent" d="M22 19h20v20H22z"/>`);
+    const boat = logo('BOAT', `<path class="badge-line" d="M22 31h52L64 41H32zM38 31V16h16l12 15M29 43c5-3 10 3 15 0s10 3 15 0 10 3 15 0"/><path class="badge-accent" d="M42 16h12v15H42z"/>`);
+    const snow = logo('SNOW', `<path class="badge-line" d="M48 15v24M36 21l24 12M60 21L36 33M25 38h46M31 38l-7 5M65 38l7 5"/><circle class="badge-accent" cx="48" cy="27" r="4"/>`);
+    const equipment = logo('EQUIP', `<path class="badge-line" d="M26 38h30l15-17h9M30 31h20V17H34zM50 24h14l8 10M21 39h58"/><circle class="badge-line" cx="31" cy="39" r="5"/><circle class="badge-line" cx="55" cy="39" r="5"/><path class="badge-accent" d="M72 28h10l-5 10z"/>`);
+    const electric = logo('EV', `<path class="badge-line" d="M34 36h24l9-13h10M37 27h11M64 22l6-8h9M28 37h48"/><path class="badge-accent" d="M49 14L38 32h11l-5 14 16-23H49z"/>`);
+    const motorcycle = logo('MOTO', `<path class="badge-line" d="M27 35h42M35 33l10-14h18l9 14M42 20h15M27 35l-8 6M69 35l8 6"/><circle class="badge-accent" cx="28" cy="35" r="4"/><circle class="badge-accent" cx="68" cy="35" r="4"/>`);
+    if (key.includes('naked') || key.includes('street')) return naked;
+    if (key.includes('sport') || key.includes('three')) return sportbike;
     if (key.includes('cruiser') || key.includes('touring')) return cruiser;
     if (key.includes('adventure') || key.includes('off-road')) return adventure;
-    if (key.includes('atv') || key.includes('utv') || key.includes('golf')) return atv;
-    if (key.includes('trailer') || key.includes('rv')) return trailer;
+    if (key.includes('golf')) return golf;
+    if (key.includes('atv') || key.includes('utv')) return atv;
+    if (key.includes('rv')) return rv;
+    if (key.includes('trailer')) return trailer;
     if (key.includes('boat') || key.includes('water')) return boat;
     if (key.includes('snow')) return snow;
     if (key.includes('equipment')) return equipment;
