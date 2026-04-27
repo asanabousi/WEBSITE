@@ -1,7 +1,7 @@
 /* ================================================
    UNFAZED MOTORS — Intro Animation Driver
-   Drives --p CSS variable from scroll progress.
-   Preloads both helmet images before starting.
+   Skips entirely on touch devices (iPhone, Android)
+   to avoid black-screen issues with iOS Safari.
    ================================================ */
 
 (function () {
@@ -9,16 +9,14 @@
   const spacer = document.getElementById('introSpacer');
   if (!intro || !spacer) return;
 
-  // Reduced-motion users: skip entirely
+  // Reduced-motion users: skip
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     intro.remove();
     spacer.remove();
     return;
   }
 
-  // Touch devices (iPhone, iPad, Android): skip intro entirely.
-  // iOS Safari has reliability issues with scroll-driven animations and
-  // mobile users tend to scroll past intros immediately anyway.
+  // Touch devices (iPhone, iPad, Android): skip intro entirely
   if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
     intro.remove();
     spacer.remove();
@@ -26,7 +24,7 @@
     return;
   }
 
-  // Preload both helmet images before starting the animation
+  // ---- Desktop intro animation ----
   const helmetSrc = intro.querySelector('.intro-helmet')?.src;
   const damagedSrc = intro.querySelector('.intro-helmet-damaged')?.src;
   let loaded = 0;
@@ -40,7 +38,6 @@
     let done = false;
     function tick() {
       const rect = spacer.getBoundingClientRect();
-      // Use clientHeight for iOS Safari viewport measurement accuracy
       const vh = document.documentElement.clientHeight;
       const scrollable = spacer.offsetHeight - vh;
       const y = Math.max(0, -rect.top);
@@ -73,16 +70,6 @@
       document.documentElement.classList.add('intro-done');
       intro.classList.add('done');
     }, 5000);
-
-    // Touch devices (iOS/Android): if user hasn't scrolled enough in 8s,
-    // force-finish so they're never stuck staring at a black screen.
-    if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
-      setTimeout(() => {
-        document.documentElement.classList.add('intro-done');
-        intro.classList.add('done');
-        intro.style.display = 'none';
-      }, 8000);
-    }
   }
 
   let started = false;
@@ -98,7 +85,6 @@
       img.onerror = onLoad;
       img.src = src;
     });
-    // Start anyway if images take more than 2s
     setTimeout(maybeStart, 2000);
   }
 })();
