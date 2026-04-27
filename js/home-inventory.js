@@ -89,7 +89,7 @@
       </div>
       <div class="card-foot">
         <div class="card-price">${fmtPayment(biweeklyPayment)}<small>B/W · OAC</small></div>
-        <span class="card-cta">↗</span>
+        <span class="card-cta" aria-hidden="true"></span>
       </div>
     </div>
   </a>

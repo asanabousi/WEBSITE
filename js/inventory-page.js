@@ -141,7 +141,7 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
       </div>
       <div class="card-foot">
         <div class="card-price">${fmt(price)}<small>b/w · OAC</small></div>
-        <span class="card-cta">↗</span>
+        <span class="card-cta" aria-hidden="true"></span>
       </div>
     </div>
   </a>

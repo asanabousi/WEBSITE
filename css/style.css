@@ -216,7 +216,26 @@ section { padding: 120px 40px; position: relative; }
 .card-foot { display: flex; justify-content: space-between; align-items: center; }
 .card-price { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.01em; }
 .card-price small { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mute); display: block; margin-top: 2px; }
-.card-cta { width: 42px; height: 42px; border-radius: 50%; background: var(--ink); color: var(--bg); display: grid; place-items: center; transition: all .25s; flex-shrink: 0; }
+.card-cta {
+  width: 42px; height: 42px; border-radius: 50%; background: var(--ink); color: var(--bg);
+  display: grid; place-items: center; transition: all .25s; flex-shrink: 0;
+  position: relative;
+}
+.card-cta::before {
+  content: "";
+  width: 12px; height: 12px;
+  border-top: 1.8px solid currentColor;
+  border-right: 1.8px solid currentColor;
+  transform: translate(-1px, 1px);
+}
+.card-cta::after {
+  content: "";
+  position: absolute;
+  width: 16px; height: 1.8px;
+  background: currentColor;
+  transform: rotate(-45deg) translate(-1px, 0);
+  transform-origin: center;
+}
 .card-cta:hover { background: var(--accent); color: var(--ink); transform: rotate(-45deg); }
 .card-status-sold { opacity: 0.5; }
 .card-status-sold .card-badge { background: rgba(0,0,0,0.6); color: var(--mute); border-color: var(--line); }
