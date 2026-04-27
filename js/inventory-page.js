@@ -487,3 +487,35 @@ async function fetchAll() {
 
   load();
 })();
+
+/* ===== Inventory default collapsed filters patch ===== */
+(function () {
+  function ready(fn) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", fn);
+    } else {
+      fn();
+    }
+  }
+
+  ready(function () {
+    var path = location.pathname.toLowerCase();
+    if (!path.includes("inventory")) return;
+
+    document.body.classList.add("inventory-filters-collapsed");
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "inventory-filter-toggle";
+    btn.textContent = "Filters";
+    btn.setAttribute("aria-expanded", "false");
+
+    btn.addEventListener("click", function () {
+      var collapsed = document.body.classList.toggle("inventory-filters-collapsed");
+      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      btn.textContent = collapsed ? "Filters" : "Hide Filters";
+    });
+
+    document.body.appendChild(btn);
+  });
+})();
