@@ -28,12 +28,11 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
 
   // ---- Utilities ----
   function fmt(n) {
-  const value = Number(n);
-  if (!Number.isFinite(value) || value <= 0) return 'Contact Us';
+    const value = Number(n);
+    if (!Number.isFinite(value) || value <= 0) return 'Contact Us';
 
-  // Airtable sends full vehicle price. Website displays estimated monthly payment.
-  return '$' + Math.ceil(value / 100).toLocaleString('en-CA');
-}
+    return '$' + Math.ceil(value / 100).toLocaleString('en-CA');
+  }
   function fmtNum(n) { return n ? Number(n).toLocaleString('en-CA') : '—'; }
   function badgeClass(badge) {
     const map = { 'NEW': 'badge-new', 'Featured': 'badge-featured', 'Reduced': 'badge-reduced', 'Just Arrived': 'badge-featured' };
@@ -243,14 +242,6 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
     countEl.textContent = activeMakes.size > 0 ? `(${activeMakes.size})` : '';
   }
 
-  // ---- Collapsible Make section ----
-  const makesToggle = document.getElementById('makesToggle');
-  if (makesToggle && sidebarMakes) {
-    makesToggle.addEventListener('click', () => {
-      const isCollapsed = sidebarMakes.classList.toggle('collapsed');
-      makesToggle.setAttribute('aria-expanded', String(!isCollapsed));
-    });
-  }
 
   // ============================================================
   // NEW FILTERS (additive — Body Type, Model, Year, Odometer)
@@ -378,21 +369,27 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
     setCount('odometerCount', kmActive, true);
   }
 
-  // ---- Wire toggles for new sections ----
-  [
-    ['bodyTypeToggle', 'sidebarBodyType'],
-    ['modelsToggle', 'sidebarModels'],
-    ['yearToggle', 'sidebarYear'],
-    ['odometerToggle', 'sidebarOdometer']
-  ].forEach(([btnId, panelId]) => {
-    const btn = document.getElementById(btnId);
-    const panel = document.getElementById(panelId);
-    if (!btn || !panel) return;
-    btn.addEventListener('click', () => {
-      const isCollapsed = panel.classList.toggle('collapsed');
-      btn.setAttribute('aria-expanded', String(!isCollapsed));
-    });
+// ---- Wire sidebar collapsible sections ----
+document.querySelectorAll('.sidebar-toggle').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.toggle;
+
+    const panelMap = {
+      bodyType: 'sidebarBodyType',
+      makes: 'sidebarMakes',
+      models: 'sidebarModels',
+      year: 'sidebarYear',
+      odometer: 'sidebarOdometer'
+    };
+
+    const panelId = panelMap[key];
+    const panel = panelId ? document.getElementById(panelId) : null;
+    if (!panel) return;
+
+    const isCollapsed = panel.classList.toggle('collapsed');
+    btn.setAttribute('aria-expanded', String(!isCollapsed));
   });
+});
 
   // ---- Wire Year inputs ----
   const yearMinEl = document.getElementById('yearMin');
@@ -498,34 +495,29 @@ async function fetchAll() {
 /* ===== Inventory filter toggle ===== */
 document.addEventListener("DOMContentLoaded", function () {
   const body = document.body;
+  const toolbar = document.querySelector(".inv-toolbar");
 
-  const sidebar =
-    document.querySelector(".inv-sidebar") ||
-    document.querySelector(".inventory-sidebar") ||
-    document.querySelector(".filters-sidebar") ||
-    document.querySelector("aside");
+  if (!toolbar) return;
 
-  const toolbar = document.querySelector(".inv-toolbar") || document.body;
-
-  if (!sidebar) return;
-
-  sidebar.classList.add("filters-panel");
   body.classList.add("inventory-filters-collapsed");
 
   let btn = document.getElementById("filterToggle");
+
   if (!btn) {
     btn = document.createElement("button");
     btn.id = "filterToggle";
     btn.type = "button";
     btn.className = "filter-toggle-btn";
-    btn.textContent = "Filters";
-    btn.setAttribute("aria-expanded", "false");
     toolbar.prepend(btn);
   }
 
+  btn.textContent = "Filters";
+  btn.setAttribute("aria-expanded", "false");
+
   btn.addEventListener("click", function () {
-    const isCollapsed = body.classList.toggle("inventory-filters-collapsed");
-    btn.textContent = isCollapsed ? "Filters" : "Hide Filters";
-    btn.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
+    const collapsed = body.classList.toggle("inventory-filters-collapsed");
+
+    btn.textContent = collapsed ? "Filters" : "Hide Filters";
+    btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
   });
 });

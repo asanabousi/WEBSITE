@@ -229,22 +229,29 @@
   text-transform: uppercase;
   cursor: pointer;
   margin-right: 12px;
+  flex-shrink: 0;
+  min-width: 92px;
 }
 
-body.inventory-filters-collapsed .filters-panel {
+body.inventory-filters-collapsed .inv-sidebar {
   display: none !important;
 }
 
-body.inventory-filters-collapsed .inv-grid-wrap,
-body.inventory-filters-collapsed .inventory-grid-wrap,
-body.inventory-filters-collapsed .inv-results,
-body.inventory-filters-collapsed main {
-  margin-left: 0 !important;
+body.inventory-filters-collapsed .inv-layout {
+  grid-template-columns: 1fr !important;
+}
+
+body.inventory-filters-collapsed .inv-results {
+  width: 100% !important;
 }
 
 @media (max-width: 900px) {
   .filter-toggle-btn {
     padding: 10px 14px;
     font-size: 9px;
+  }
+
+  .inv-toolbar {
+    gap: 10px;
   }
 }

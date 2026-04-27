@@ -41,12 +41,22 @@
   });
 
   // ---- Reveal on scroll ----
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-    });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  const revealEls = document.querySelectorAll('.reveal');
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    revealEls.forEach(el => io.observe(el));
+  } else {
+    revealEls.forEach(el => el.classList.add('in'));
+  }
 
   // ---- Smooth scroll for same-page anchor links ----
   document.querySelectorAll('a[href^="#"]').forEach(a => {
@@ -57,7 +67,11 @@
       if (!target) return;
       e.preventDefault();
       const y = target.getBoundingClientRect().top + window.scrollY - 80;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      try {
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      } catch (err) {
+        window.scrollTo(0, y);
+      }
     });
   });
 })();

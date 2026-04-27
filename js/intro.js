@@ -1,7 +1,7 @@
 /* ================================================
    UNFAZED MOTORS — Intro Animation Driver
    Desktop: scroll-driven
-   Mobile: skip intro for iPhone Safari safety
+   Mobile: lightweight timed intro for iPhone/Android safety
    ================================================ */
 
    (function () {
@@ -9,6 +9,21 @@
     const spacer = document.getElementById('introSpacer');
     if (!intro || !spacer) return;
   
+    let mobileFinished = false;
+
+    function finishIntro() {
+      if (mobileFinished) return;
+      mobileFinished = true;
+      intro.classList.add('done');
+      document.documentElement.classList.add('intro-done');
+      window.setTimeout(() => {
+        intro.remove();
+        spacer.remove();
+        document.documentElement.classList.remove('has-intro');
+        document.body.style.overflow = '';
+      }, 260);
+    }
+
     function skipIntro() {
       intro.remove();
       spacer.remove();
@@ -17,13 +32,37 @@
       document.body.style.overflow = '';
     }
   
-    // iPhone / iPad / Android: skip intro completely
+    function startMobileIntro() {
+      document.documentElement.classList.add('has-intro', 'mobile-intro-auto');
+      document.body.style.overflow = 'hidden';
+      window.scrollTo(0, 0);
+
+      let p = 0;
+      const startedAt = performance.now();
+      const duration = 1800;
+
+      function tick(now) {
+        p = Math.min(1, (now - startedAt) / duration);
+        intro.style.setProperty('--p', p.toFixed(4));
+        const cueFill = document.getElementById('cueFill');
+        if (cueFill) cueFill.style.width = (p * 100).toFixed(1) + '%';
+        if (p < 1) requestAnimationFrame(tick);
+        else finishIntro();
+      }
+
+      requestAnimationFrame(tick);
+      intro.addEventListener('click', finishIntro, { once: true });
+      intro.addEventListener('touchstart', finishIntro, { once: true, passive: true });
+      window.setTimeout(finishIntro, 2800);
+    }
+
+    // iPhone / iPad / Android: use a timed intro, not scroll-driven fixed animation
     const isTouch =
       window.matchMedia &&
       window.matchMedia('(hover: none) and (pointer: coarse)').matches;
   
     if (isTouch) {
-      skipIntro();
+      startMobileIntro();
       return;
     }
   

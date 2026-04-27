@@ -17,9 +17,22 @@
   }
 
   // ---- Utilities ----
-  function fmt(n) { return n ? '$' + Math.ceil(Number(n) / 100).toLocaleString('en-CA') : 'Contact for price'; }
+  function fmtPayment(n) {
+    const value = Number(n);
+    if (!Number.isFinite(value) || value <= 0) return 'Contact for payment';
+    return '$' + Math.ceil(value / 100).toLocaleString('en-CA');
+  }
   function fmtNum(n) { return n ? Number(n).toLocaleString('en-CA') : '—'; }
   function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function normalizePhotos(bike) {
+    const rawPhotos = bike.photos || bike.Photos || bike.photoUrls || bike.photoURLS || [];
+    if (Array.isArray(rawPhotos) && rawPhotos.length) {
+      return rawPhotos
+        .map((photo) => typeof photo === 'string' ? { url: photo } : photo)
+        .filter((photo) => photo && photo.url);
+    }
+    return bike.photo ? [{ url: bike.photo }] : [];
+  }
 
   function placeholderSvg() {
     return `<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet" style="width:80%;max-width:480px">
@@ -55,13 +68,18 @@
     }
     const mainUrl = photos[0].url;
     const thumbs = photos.map((p, i) => `
-      <div class="thumb ${i === 0 ? 'active' : ''}" data-idx="${i}" data-url="${p.url}">
+      <button class="thumb ${i === 0 ? 'active' : ''}" type="button" data-idx="${i}" data-url="${p.url}" aria-label="Show photo ${i + 1}">
         <img src="${p.thumbnails?.small?.url || p.url}" alt="Photo ${i + 1}" loading="lazy">
-      </div>`).join('');
+      </button>`).join('');
 
     return `
       <div class="gallery-main">
         <img src="${mainUrl}" alt="Vehicle photo" id="galleryMain">
+        ${photos.length > 1 ? `
+          <button class="gallery-nav gallery-prev" type="button" id="galleryPrev" aria-label="Previous photo">‹</button>
+          <button class="gallery-nav gallery-next" type="button" id="galleryNext" aria-label="Next photo">›</button>
+          <span class="gallery-count" id="galleryCount">1 / ${photos.length}</span>
+        ` : ''}
       </div>
       ${photos.length > 1 ? `<div class="gallery-thumbs" id="galleryThumbs">${thumbs}</div>` : ''}
     `;
@@ -124,10 +142,10 @@
       spec('Year', year), spec('Make', make), spec('Model', model),
       spec('Category', category), spec('Engine', cc ? `${fmtNum(cc)} cc` : null),
       spec('Horsepower', hp ? `${fmtNum(hp)} HP` : null),
-      spec('Mileage', km ? `${fmtNum(km)} km` : null),
+      spec('Mileage', km ? `${fmtNum(km)} km` : 'Contact Us'),
       spec('Transmission', transmission), spec('Color', color),
       spec('Drivetrain', drivetrain), spec('Fuel Economy', fuelEcon),
-      spec('Passengers', passengers), spec('VIN', vin),
+      spec('Passengers', passengers), spec('VIN', vin || 'Contact Us'),
     ].filter(Boolean).join('');
 
     wrap.innerHTML = `
@@ -151,7 +169,7 @@
           </div>
 
           <div class="price-block">
-            <div class="cash-price">${fmt(price)}<span class="price-unit">/MO</span><small>7.99% APR · OAC · Plus taxes &amp; fees</small></div>
+            <div class="cash-price">${fmtPayment(price)}<span class="price-unit">b/w</span><small>OAC · Plus taxes &amp; fees</small></div>
           </div>
 
           <div class="spec-grid">${specRows}</div>
@@ -171,13 +189,24 @@
 
     // ---- Gallery interactions ----
     const mainImg = document.getElementById('galleryMain');
-    document.getElementById('galleryThumbs')?.querySelectorAll('.thumb').forEach(thumb => {
-      thumb.addEventListener('click', () => {
-        if (mainImg) mainImg.src = thumb.dataset.url;
-        document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
-        thumb.classList.add('active');
-      });
+    const galleryCount = document.getElementById('galleryCount');
+    const thumbs = Array.from(document.getElementById('galleryThumbs')?.querySelectorAll('.thumb') || []);
+    let activePhoto = 0;
+
+    function setActivePhoto(index) {
+      if (!mainImg || !photos.length) return;
+      activePhoto = (index + photos.length) % photos.length;
+      mainImg.src = photos[activePhoto].url;
+      thumbs.forEach((thumb, i) => thumb.classList.toggle('active', i === activePhoto));
+      thumbs[activePhoto]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      if (galleryCount) galleryCount.textContent = `${activePhoto + 1} / ${photos.length}`;
+    }
+
+    thumbs.forEach((thumb, i) => {
+      thumb.addEventListener('click', () => setActivePhoto(i));
     });
+    document.getElementById('galleryPrev')?.addEventListener('click', () => setActivePhoto(activePhoto - 1));
+    document.getElementById('galleryNext')?.addEventListener('click', () => setActivePhoto(activePhoto + 1));
 
     
     // ---- Availability modal ----
@@ -254,7 +283,16 @@ leadForm?.addEventListener('submit', async (e) => {
         'Price (CAD)': match.price,
         'Badge': match.badge,
         'Description': match.description,
-        'Photos': match.photo ? [{ url: match.photo }] : [],
+        'Photos': normalizePhotos(match),
+        'VIN': match.vin,
+        'Drivetrain': match.drivetrain,
+        'Fuel Economy': match.fuelEconomy,
+        'Passengers': match.passengers,
+        'Highlights': match.highlights,
+        'Accident-Free': match.accidentFree,
+        'One Owner': match.oneOwner,
+        'Certified': match.certified,
+        'Low KM': match.lowKm,
         'Status': match.status
       }
     };

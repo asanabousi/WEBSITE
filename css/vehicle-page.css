@@ -30,6 +30,23 @@
   position: relative; margin-bottom: 12px;
 }
 .gallery-main img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gallery-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.62);
+  color: var(--ink); font-family: 'Bebas Neue', sans-serif; font-size: 36px;
+  line-height: 1; display: grid; place-items: center; cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.gallery-nav:hover { background: rgba(255,45,45,0.85); border-color: rgba(255,45,45,0.95); }
+.gallery-prev { left: 14px; }
+.gallery-next { right: 14px; }
+.gallery-count {
+  position: absolute; right: 14px; bottom: 14px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em;
+  color: var(--ink); background: rgba(0,0,0,0.62); border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 999px; padding: 8px 10px;
+}
 .gallery-main .no-photo {
   position: absolute; inset: 0; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 16px;
@@ -41,7 +58,7 @@
 .thumb {
   width: 88px; height: 66px; flex-shrink: 0;
   border: 1px solid var(--line); border-radius: 8px; overflow: hidden;
-  cursor: pointer; transition: border-color .2s;
+  cursor: pointer; transition: border-color .2s; padding: 0; background: none;
 }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
 .thumb:hover, .thumb.active { border-color: var(--accent); }

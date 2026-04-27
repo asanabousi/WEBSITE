@@ -11,9 +11,18 @@
   const countEl = document.getElementById('invCount');
   if (!grid) return;
 
-  function fmt(n) {
-    if (!n && n !== 0) return '—';
-    return '$' + Math.ceil(Number(n) / 100).toLocaleString('en-CA');
+  function fmtPayment(n) {
+    const value = Number(n);
+    if (!Number.isFinite(value) || value <= 0) return 'Contact Us';
+    return '$' + Math.ceil(value).toLocaleString('en-CA');
+  }
+  function getBiweeklyPayment(f) {
+    return f['Biweekly Payment']
+      ?? f['Bi-Weekly Payment']
+      ?? f['Bi Weekly Payment']
+      ?? f['Payment Biweekly']
+      ?? f['Payment (Biweekly)']
+      ?? (f['Price (CAD)'] ? Number(f['Price (CAD)']) / 100 : null);
   }
   function fmtNum(n) { return n ? Number(n).toLocaleString('en-CA') : '—'; }
 
@@ -62,7 +71,7 @@
     const cc = f['Engine (cc)'];
     const hp = f['Horsepower'];
     const km = f['Mileage (km)'];
-    const price = f['Price (CAD)'];
+    const biweeklyPayment = getBiweeklyPayment(f);
 
     return `<article class="card reveal" style="transition-delay:${delay}ms">
   <a href="vehicle.html?stock=${encodeURIComponent(stock)}">
@@ -79,7 +88,7 @@
         ${km ? `<span>${fmtNum(km)} km</span>` : ''}
       </div>
       <div class="card-foot">
-        <div class="card-price">${fmt(price)}<small>/MO · Plus taxes &amp; fees · OAC</small></div>
+        <div class="card-price">${fmtPayment(biweeklyPayment)}<small>B/W · OAC</small></div>
         <span class="card-cta">↗</span>
       </div>
     </div>
@@ -110,6 +119,7 @@
         'Transmission': bike.transmission,
         'Color': bike.color,
         'Price (CAD)': bike.price,
+        'Biweekly Payment': bike.biweeklyPayment ?? bike.biWeeklyPayment ?? bike.bi_weekly_payment ?? bike.paymentBiweekly,
         'Badge': bike.badge,
         'Description': bike.description,
         'Photos': bike.photo ? [{ url: bike.photo, thumbnails: { large: { url: bike.photo } } }] : [],

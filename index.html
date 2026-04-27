@@ -131,7 +131,7 @@
         <div class="feature-stats">
           <div class="s"><b id="heroFeatHP">—</b><span>HP</span></div>
           <div class="s"><b id="heroFeatCC">—</b><span>CC</span></div>
-          <div class="s"><b id="heroFeatPrice">—</b><span>/MO</span></div>
+          <div class="s"><b id="heroFeatPrice">—</b><span>B/W</span></div>
         </div>
       </div>
     </div>
@@ -338,7 +338,7 @@
         <li><a href="tel:17802361276">780 236 1276</a></li>
         <li><a href="mailto:hello@unfazedmotors.ca">hello@unfazedmotors.ca</a></li>
         <li style="color:#ccc">Mon–Sun · 9:00–19:00</li>
-        <li style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;margin-top:6px">🍁 Proudly Canadian</li>
+        <li style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;margin-top:6px">Proudly Canadian</li>
       </ul>
     </div>
   </div>
@@ -369,7 +369,16 @@
     if (el('heroFeatName')) el('heroFeatName').textContent = `${f['Make'] || ''} ${f['Model'] || ''}`;
     if (el('heroFeatHP')) el('heroFeatHP').textContent = f['Horsepower'] ? Number(f['Horsepower']).toLocaleString('en-CA') : '—';
     if (el('heroFeatCC')) el('heroFeatCC').textContent = f['Engine (cc)'] ? Number(f['Engine (cc)']).toLocaleString('en-CA') : '—';
-    if (el('heroFeatPrice')) el('heroFeatPrice').textContent = f['Price (CAD)'] ? '$' + Math.ceil(Number(f['Price (CAD)']) / 100).toLocaleString('en-CA') : '—';
+    if (el('heroFeatPrice')) {
+      const payment = f['Biweekly Payment']
+        ?? f['Bi-Weekly Payment']
+        ?? f['Bi Weekly Payment']
+        ?? f['Payment Biweekly']
+        ?? f['Payment (Biweekly)']
+        ?? (f['Price (CAD)'] ? Number(f['Price (CAD)']) / 100 : null);
+      const paymentValue = Number(payment);
+      el('heroFeatPrice').textContent = Number.isFinite(paymentValue) && paymentValue > 0 ? '$' + Math.ceil(paymentValue).toLocaleString('en-CA') : '—';
+    }
     if (el('heroStockCount')) {
       // Will be set by home-inventory.js
     }
