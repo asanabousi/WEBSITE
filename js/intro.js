@@ -56,22 +56,31 @@
       window.setTimeout(finishIntro, 2800);
     }
 
-    // iPhone / iPad / Android: use a timed intro, not scroll-driven fixed animation
-    const isTouch =
-      window.matchMedia &&
-      window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-  
-    if (isTouch) {
-      startMobileIntro();
-      return;
-    }
-  
     // Reduced motion: skip intro
     if (
       window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ) {
       skipIntro();
+      return;
+    }
+
+    // iPhone / iPad / Android: use a timed intro, not scroll-driven fixed animation.
+    // Safari can report hover/pointer values inconsistently, so use multiple signals.
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isAndroid = /Android/.test(ua);
+    const isTouchPointer =
+      window.matchMedia &&
+      window.matchMedia('(hover: none), (pointer: coarse)').matches;
+    const isSmallViewport =
+      window.matchMedia &&
+      window.matchMedia('(max-width: 820px)').matches;
+    const hasTouch = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
+    const isMobile = isIOS || isAndroid || (hasTouch && (isTouchPointer || isSmallViewport));
+  
+    if (isMobile) {
+      startMobileIntro();
       return;
     }
   
