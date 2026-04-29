@@ -112,9 +112,10 @@ const API_BASE = 'https://unfazed-chatbot.unfazedmotors.workers.dev';
     const model = f['Model'] || '';
     const photos = Array.isArray(f['Photos']) ? f['Photos'].filter(photoUrl) : [];
     const thumb = photos[0] ? photoUrl(photos[0]) : null;
+    const previewPhotos = photos.slice(0, 8);
     const media = photos.length > 1
       ? `<div class="card-photo-strip" aria-label="${year} ${make} ${model} photos">
-          ${photos.map((photo, index) => `<img src="${photoUrl(photo)}" alt="${year} ${make} ${model}${index ? ` photo ${index + 1}` : ''}" loading="${index ? 'lazy' : 'eager'}">`).join('')}
+          ${previewPhotos.map((photo, index) => `<img src="${photoUrl(photo)}" alt="${year} ${make} ${model}${index ? ` photo ${index + 1}` : ''}" loading="${index ? 'lazy' : 'eager'}">`).join('')}
         </div>
         <span class="card-photo-count">${photos.length} photos</span>`
       : (thumb ? `<img src="${thumb}" alt="${year} ${make} ${model}" loading="lazy">` : `<img src="assets/coming-soon.png" alt="Photos coming soon" loading="lazy">`);
