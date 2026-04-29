@@ -24,6 +24,7 @@
   }
   function fmtNum(n) { return n ? Number(n).toLocaleString('en-CA') : '—'; }
   function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function escAttr(s) { return esc(s).replace(/"/g, '&quot;'); }
   function normalizePhotos(bike) {
     const rawPhotos = bike.photos || bike.Photos || bike.photoUrls || bike.photoURLS || [];
     if (Array.isArray(rawPhotos) && rawPhotos.length) {
@@ -74,7 +75,9 @@
 
     return `
       <div class="gallery-main">
-        <img src="${mainUrl}" alt="Vehicle photo" id="galleryMain">
+        <button class="gallery-open" type="button" id="galleryOpen" aria-label="Open photo gallery">
+          <img src="${mainUrl}" alt="Vehicle photo" id="galleryMain">
+        </button>
         ${photos.length > 1 ? `
           <button class="gallery-nav gallery-prev" type="button" id="galleryPrev" aria-label="Previous photo">‹</button>
           <button class="gallery-nav gallery-next" type="button" id="galleryNext" aria-label="Next photo">›</button>
@@ -82,6 +85,22 @@
         ` : ''}
       </div>
       ${photos.length > 1 ? `<div class="gallery-thumbs" id="galleryThumbs">${thumbs}</div>` : ''}
+    `;
+  }
+
+  function buildPhotoLightbox(photos, title) {
+    if (!photos || !photos.length) return '';
+    const safeTitle = escAttr(title || 'Vehicle photo');
+    return `
+      <div class="photo-lightbox" id="photoLightbox" aria-hidden="true">
+        <button class="photo-lightbox-close" type="button" id="photoLightboxClose" aria-label="Close gallery"></button>
+        <button class="photo-lightbox-nav photo-lightbox-prev" type="button" id="photoLightboxPrev" aria-label="Previous photo"></button>
+        <figure class="photo-lightbox-frame">
+          <img src="${photos[0].url}" alt="${safeTitle}" id="photoLightboxImg">
+          <figcaption id="photoLightboxCount">1 / ${photos.length}</figcaption>
+        </figure>
+        <button class="photo-lightbox-nav photo-lightbox-next" type="button" id="photoLightboxNext" aria-label="Next photo"></button>
+      </div>
     `;
   }
 
@@ -136,6 +155,7 @@
       status !== 'In Stock' ? `<span class="veh-badge">${status}</span>` : ''
     ].filter(Boolean).join('');
 
+    const vehicleLabel = `${year} ${make} ${model}`.trim();
     const galleryHtml = buildGallery(photos);
 
     const specRows = [
@@ -185,21 +205,42 @@
           </div>
         </div>
       </div>
+      ${buildPhotoLightbox(photos, vehicleLabel)}
     `;
 
     // ---- Gallery interactions ----
     const mainImg = document.getElementById('galleryMain');
     const galleryCount = document.getElementById('galleryCount');
     const thumbs = Array.from(document.getElementById('galleryThumbs')?.querySelectorAll('.thumb') || []);
+    const lightbox = document.getElementById('photoLightbox');
+    const lightboxImg = document.getElementById('photoLightboxImg');
+    const lightboxCount = document.getElementById('photoLightboxCount');
     let activePhoto = 0;
 
     function setActivePhoto(index) {
       if (!mainImg || !photos.length) return;
       activePhoto = (index + photos.length) % photos.length;
       mainImg.src = photos[activePhoto].url;
+      if (lightboxImg) lightboxImg.src = photos[activePhoto].url;
       thumbs.forEach((thumb, i) => thumb.classList.toggle('active', i === activePhoto));
       thumbs[activePhoto]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
       if (galleryCount) galleryCount.textContent = `${activePhoto + 1} / ${photos.length}`;
+      if (lightboxCount) lightboxCount.textContent = `${activePhoto + 1} / ${photos.length}`;
+    }
+
+    function openLightbox(index = activePhoto) {
+      if (!lightbox || !photos.length) return;
+      setActivePhoto(index);
+      lightbox.classList.add('open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      if (!lightbox) return;
+      lightbox.classList.remove('open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
     }
 
     thumbs.forEach((thumb, i) => {
@@ -207,6 +248,27 @@
     });
     document.getElementById('galleryPrev')?.addEventListener('click', () => setActivePhoto(activePhoto - 1));
     document.getElementById('galleryNext')?.addEventListener('click', () => setActivePhoto(activePhoto + 1));
+    document.getElementById('galleryOpen')?.addEventListener('click', () => openLightbox(activePhoto));
+    document.getElementById('photoLightboxClose')?.addEventListener('click', closeLightbox);
+    document.getElementById('photoLightboxPrev')?.addEventListener('click', () => setActivePhoto(activePhoto - 1));
+    document.getElementById('photoLightboxNext')?.addEventListener('click', () => setActivePhoto(activePhoto + 1));
+    lightbox?.addEventListener('click', (e) => {
+      if (e.target !== lightbox) return;
+      const x = e.clientX / Math.max(window.innerWidth, 1);
+      if (x > 0.72 && photos.length > 1) {
+        setActivePhoto(activePhoto + 1);
+      } else if (x < 0.28 && photos.length > 1) {
+        setActivePhoto(activePhoto - 1);
+      } else {
+        closeLightbox();
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (!lightbox?.classList.contains('open')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') setActivePhoto(activePhoto - 1);
+      if (e.key === 'ArrowRight') setActivePhoto(activePhoto + 1);
+    });
 
     
     // ---- Availability modal ----
